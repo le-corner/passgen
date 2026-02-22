@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Password Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    font-family: Inter, sans-serif;
+    background:#f4f7fb;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+/* Main Card */
+.container{
+    width:92%;
+    max-width:520px;
+    background:white;
+    border-radius:18px;
+    box-shadow:0 12px 35px rgba(0,0,0,0.08);
+    overflow:hidden;
+}
+
+/* Header */
+.header{
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    padding:24px;
+    text-align:center;
+    font-size:22px;
+    font-weight:600;
+}
+
+/* Content */
+.content{
+    padding:26px;
+}
+
+label{
+    display:block;
+    margin:10px 0;
+    font-size:15px;
+}
+
+input[type=range]{
+    width:100%;
+    accent-color:#1e3c72;
+}
+
+.options label{
+    font-size:15px;
+    cursor:pointer;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    margin-top:20px;
+    cursor:pointer;
+    transition:0.25s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Output Boxes */
+#password{
+    margin-top:22px;
+    padding:15px;
+    border-radius:10px;
+    border:1px solid #e5e9f2;
+    background:#fafbff;
+    text-align:center;
+    word-break:break-all;
+    font-size:19px;
+}
+
+#strength{
+    margin-top:12px;
+    text-align:center;
+    font-weight:600;
+}
+
+/* Responsive */
+@media(max-width:600px){
+    .content{
+        padding:20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+Password Security Generator
+</div>
+
+<div class="content">
+
+<label>Password Length: <span id="lengthValue">12</span></label>
+<input type="range" id="length" min="1" max="50" value="12">
+
+<div class="options">
+<label><input type="checkbox" id="lowercase" checked> Lowercase abc</label>
+<label><input type="checkbox" id="uppercase" checked> Uppercase ABC</label>
+<label><input type="checkbox" id="numbers" checked> Numbers 0123</label>
+<label><input type="checkbox" id="symbols"> Symbols -/:;()$&@.?![]{}#^*+=_<>~</label>
+</div>
+
+<button onclick="generatePassword()">Generate Secure Password</button>
+
+<div id="password"></div>
+<div id="strength"></div>
+
+</div>
+</div>
+
+<script>
+const symbolList = "-/:;()$&@.?![]{}#^*+=_<>~";
+
+const lowercase = "abcdefghijklmnopqrstuvwxyz";
+const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const numbers = "0123456789";
+
+document.getElementById("length").addEventListener("input", function(){
+    document.getElementById("lengthValue").innerText = this.value;
+});
+
+/* Count character types used */
+function countCharacterTypes(password){
+    let types = 0;
+
+    if(/[a-z]/.test(password)) types++;
+    if(/[A-Z]/.test(password)) types++;
+    if(/[0-9]/.test(password)) types++;
+    if(new RegExp("[" + escapeRegex(symbolList) + "]").test(password)) types++;
+
+    return types;
+}
+
+function escapeRegex(str){
+    return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+/* Modern strength evaluation */
+function evaluateStrength(password){
+    const length = password.length;
+    const types = countCharacterTypes(password);
+
+    if(length >= 16 && types === 4){
+        return "Strength: Very Strong";
+    }
+
+    if(length >= 12 && types >= 3){
+        return "Strength: Strong";
+    }
+
+    if(length >= 8 && types >= 2){
+        return "Strength: Medium";
+    }
+
+    return "Strength: Weak";
+}
+
+function generatePassword(){
+    const length = parseInt(document.getElementById("length").value);
+
+    let pool = "";
+
+    if(document.getElementById("lowercase").checked) pool += lowercase;
+    if(document.getElementById("uppercase").checked) pool += uppercase;
+    if(document.getElementById("numbers").checked) pool += numbers;
+    if(document.getElementById("symbols").checked) pool += symbolList;
+
+    if(pool.length === 0){
+        alert("Please select at least one character type!");
+        return;
+    }
+
+    let password = "";
+    for(let i=0;i<length;i++){
+        password += pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    document.getElementById("password").innerText = password;
+    document.getElementById("strength").innerText = evaluateStrength(password);
+}
+</script>
+
+</body>
+</html>
